@@ -627,27 +627,65 @@
       D += '<a class="share-link" href="' + h + '" target="_blank">' + h + "</a>", D += "</div>", 
       D += '<div class="branding">', D += '<img src="https://cdn.prod.website-files.com/6538b3836b3dce952f05ff81/69c176b77aa84ff24e1ed1ec_MD101%20LOGO%20White%201.png" alt="Modern Data 101">', 
       D += '<div class="branding-text">An initiative by Modern Data 101<br>', D += '<a href="https://moderndata101.com/data-product-maturity" target="_blank">moderndata101.com/data-product-maturity</a></div>', 
-      D += "</div>", D += '<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\\/script>', 
-      D += '<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\\/script>', 
-      D += "<script>", D += 'window.addEventListener("load",function(){', D += "  setTimeout(function(){", 
-      D += '    var wrap=document.querySelector(".wrap");', D += '    if(!wrap||!window.html2canvas||!window.jspdf||!window.jspdf.jsPDF){return;}', 
-      D += '    html2canvas(wrap,{backgroundColor:"#0A0A0A",scale:2,useCORS:true}).then(function(canvas){', 
-      D += '      var imgData=canvas.toDataURL("image/png");', D += "      var pw=210;", 
-      D += "      var scale=pw/wrap.offsetWidth;", D += "      var imgH=(canvas.height*pw)/canvas.width;", 
-      D += '      var pdf=new window.jspdf.jsPDF("p","mm",[pw,imgH]);', D += '      pdf.addImage(imgData,"PNG",0,0,pw,imgH);', 
-      D += '      var links=wrap.querySelectorAll("a[href]");', D += "      links.forEach(function(a){", 
-      D += "        var r=a.getBoundingClientRect();", D += "        var wr=wrap.getBoundingClientRect();", 
-      D += "        var x=(r.left-wr.left)*scale;", D += "        var y=(r.top-wr.top)*scale;", 
-      D += "        var w=r.width*scale;", D += "        var h=r.height*scale;", D += "        pdf.link(x,y,w,h,{url:a.href});", 
-      D += "      });", D += '      var blob=pdf.output("blob");', D += '      var url=URL.createObjectURL(blob);', 
-      D += '      var link=document.createElement("a");', D += '      link.href=url;', D += '      link.download="data-product-maturity-assessment.pdf";', 
-      D += '      link.rel="noopener";', D += '      link.style.display="none";', D += '      document.body.appendChild(link);', 
-      D += '      link.click();', D += '      document.body.removeChild(link);', 
-      D += '      setTimeout(function(){URL.revokeObjectURL(url);window.close();},1200);', 
-      D += '    }).catch(function(){setTimeout(function(){window.close();},1200);});', D += "  },250);", 
-      D += "});", D += "<\\/script>", D += "</body></html>";
-      var T = window.open("", "_blank");
-      T ? (T.document.open(), T.document.write(D), T.document.close(), k("PDF download starting...")) : k("Pop-up blocked — please allow pop-ups and try again");
+      D += "</body></html>";
+
+      // Render in a hidden off-screen iframe (srcdoc = same-origin, no popup needed)
+      var pdfIframe = document.createElement("iframe");
+      pdfIframe.style.cssText = "position:fixed;left:-9999px;top:0;width:760px;height:2px;border:none;visibility:hidden;";
+      document.body.appendChild(pdfIframe);
+      pdfIframe.srcdoc = D;
+
+      pdfIframe.addEventListener("load", function() {
+        setTimeout(function() {
+          dpmaPdfLibsPromise.then(function() {
+            var wrap = pdfIframe.contentDocument && pdfIframe.contentDocument.querySelector(".wrap");
+            if (!wrap || !window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) {
+              document.body.removeChild(pdfIframe);
+              k("Could not generate PDF — try again");
+              return;
+            }
+            // Expand iframe to full content height so nothing is clipped
+            pdfIframe.style.height = (pdfIframe.contentDocument.body.scrollHeight + 50) + "px";
+
+            return window.html2canvas(wrap, {
+              backgroundColor: "#0A0A0A",
+              scale: 2,
+              useCORS: true,
+              allowTaint: false,
+              logging: false,
+              windowWidth: 760
+            }).then(function(canvas) {
+              document.body.removeChild(pdfIframe);
+              var imgData = canvas.toDataURL("image/png");
+              var pw = 210;
+              var scl = pw / wrap.offsetWidth;
+              var imgH = (canvas.height * pw) / canvas.width;
+              var pdf = new window.jspdf.jsPDF("p", "mm", [pw, imgH]);
+              pdf.addImage(imgData, "PNG", 0, 0, pw, imgH);
+              // Preserve clickable links in the PDF
+              wrap.querySelectorAll("a[href]").forEach(function(a) {
+                var ar = a.getBoundingClientRect();
+                var wr = wrap.getBoundingClientRect();
+                pdf.link((ar.left - wr.left) * scl, (ar.top - wr.top) * scl, ar.width * scl, ar.height * scl, { url: a.href });
+              });
+              var blob = pdf.output("blob");
+              var url = URL.createObjectURL(blob);
+              var link = document.createElement("a");
+              link.href = url;
+              link.download = "data-product-maturity-assessment.pdf";
+              link.style.display = "none";
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              setTimeout(function() { URL.revokeObjectURL(url); }, 1500);
+              k("PDF downloaded!");
+            });
+          }).catch(function() {
+            if (document.body.contains(pdfIframe)) document.body.removeChild(pdfIframe);
+            k("Could not generate PDF — try again");
+          });
+        }, 400);
+      }, { once: true });
     } else k("No results to export");
     },
     encodeAnswers: u,
