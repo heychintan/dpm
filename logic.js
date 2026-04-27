@@ -1,27 +1,64 @@
-
   // Global variable to store user email
   let userEmail = '';
 
+  function getMaturityForm() {
+    return document.querySelector('form[maturity-form]')
+      || document.querySelector('[maturity-form] form')
+      || document.getElementById('wf-form-MaturityAssessment');
+  }
+
+  function setInitialAssessmentState() {
+    const maturitySection = document.getElementById('maturity');
+    const assessmentSection = document.getElementById('assessment-section');
+    const maturityForm = getMaturityForm();
+    const formWrapper = maturityForm ? maturityForm.closest('.w-form') : null;
+    const successState = formWrapper ? formWrapper.querySelector('.w-form-done') : null;
+    const errorState = formWrapper ? formWrapper.querySelector('.w-form-fail') : null;
+    const hasSavedResult = new URLSearchParams(window.location.search).has('result');
+
+    if (hasSavedResult) {
+      if (maturitySection) maturitySection.style.display = 'none';
+      if (assessmentSection) assessmentSection.style.display = 'block';
+      return;
+    }
+
+    if (maturitySection) maturitySection.style.display = 'block';
+    if (assessmentSection) assessmentSection.style.display = 'none';
+    if (maturityForm) maturityForm.style.display = 'block';
+    if (successState) successState.style.display = 'none';
+    if (errorState) errorState.style.display = 'none';
+  }
+
   // Capture email from maturity form and start assessment
   document.addEventListener('DOMContentLoaded', function() {
-    const maturityForm = document.querySelector('[maturity-form]');
-    const maturitySection = document.querySelector('#maturity');
-    const assessmentSection = document.querySelector('#assessment-section');
-    
+    const maturityForm = getMaturityForm();
+    const maturitySection = document.getElementById('maturity');
+    const assessmentSection = document.getElementById('assessment-section');
+
+    setInitialAssessmentState();
+
     if (maturityForm) {
       maturityForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        
+
         // Capture the email from the form
-        const emailInput = this.querySelector('input[type="email"], input[name="email"], input[name="Email"]');
+        const emailInput = this.querySelector('input[type="email"], input[name="email"], input[name="Email"], input[name="email_id"]');
         if (emailInput) {
-          userEmail = emailInput.value;
+          userEmail = emailInput.value.trim();
           console.log('Email captured:', userEmail);
         }
-        
+
         // Hide maturity form and show assessment
         if (maturitySection) maturitySection.style.display = 'none';
-        if (assessmentSection) assessmentSection.style.display = 'block';
+        if (assessmentSection) {
+          assessmentSection.style.display = 'block';
+          setTimeout(function() {
+            assessmentSection.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }, 50);
+        }
       });
     }
   });
@@ -94,14 +131,22 @@
       const answersString = scores.join(',');
       
       // Populate hidden form fields
-      document.getElementById('hidden-email').value = userEmail;
-      document.getElementById('hidden-assessment-url').value = assessmentUrl;
-      document.getElementById('hidden-maturity-level').value = maturityLevel;
-      document.getElementById('hidden-maturity-percentage').value = maturityPct + '%';
-      document.getElementById('hidden-dimension-scores').value = dimensionScores;
-      document.getElementById('hidden-weakest-dimensions').value = weakest || 'None - all dimensions are strong';
-      document.getElementById('hidden-strongest-dimensions').value = strongest || 'No strengths yet - keep building';
-      document.getElementById('hidden-assessment-answers').value = answersString;
+      const setFieldValue = function(selectors, value) {
+        const field = document.querySelector(selectors);
+        if (!field) {
+          console.warn('Hidden form field not found for selectors:', selectors);
+          return;
+        }
+        field.value = value;
+      };
+      setFieldValue('#hidden-email, input[name="email"]', userEmail);
+      setFieldValue('#hidden-assessment-url, input[name="assessment-url"]', assessmentUrl);
+      setFieldValue('#hidden-maturity-level, input[name="maturity-level"]', maturityLevel);
+      setFieldValue('#hidden-maturity-percentage, input[name="maturity-percentage"]', maturityPct + '%');
+      setFieldValue('#hidden-dimension-scores, input[name="dimension-scores"]', dimensionScores);
+      setFieldValue('#hidden-weakest-dimensions, input[name="weakest-dimensions"]', weakest || 'None - all dimensions are strong');
+      setFieldValue('#hidden-strongest-dimensions, input[name="strongest-dimensions"]', strongest || 'No strengths yet - keep building');
+      setFieldValue('#hidden-assessment-answers, #assessment-answers, input[name="assessment-answers"]', answersString);
       
       console.log('Form data populated:', {
         email: userEmail,
@@ -111,21 +156,23 @@
         strongest: strongest || 'None'
       });
       
-      // Submit the hidden form
-      const hiddenForm = document.getElementById('assessment-data-form');
+      // Submit the hidden form using Webflow's form handler
+      const hiddenForm = document.getElementById('assessment-data-form')
+        || document.getElementById('wf-form-Assessment-Data')
+        || document.querySelector('form[data-name="Assessment Data"]');
       if (hiddenForm) {
-        // Create a FormData object to submit via AJAX to avoid page redirect
-        const formData = new FormData(hiddenForm);
-        
-        // Submit via fetch to avoid page redirect
-        fetch(hiddenForm.action || window.location.href, {
-          method: 'POST',
-          body: formData
-        }).then(response => {
-          console.log('Assessment data submitted successfully');
-        }).catch(error => {
-          console.error('Error submitting assessment data:', error);
-        });
+        hiddenForm.method = 'post';
+        const submitButton = hiddenForm.querySelector('input[type="submit"], button[type="submit"]');
+        if (typeof hiddenForm.requestSubmit === 'function') {
+          hiddenForm.requestSubmit(submitButton || undefined);
+        } else if (submitButton) {
+          submitButton.click();
+        } else {
+          hiddenForm.submit();
+        }
+        console.log('Assessment data submission triggered');
+      } else {
+        console.warn('Assessment data form not found');
       }
       
     } catch (error) {
