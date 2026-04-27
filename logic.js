@@ -1,5 +1,4 @@
-  // Global variable to store user email
-  let userEmail = '';
+let userEmail = '';
 
   function getMaturityForm() {
     return document.querySelector('form[maturity-form]')
@@ -29,7 +28,6 @@
     if (errorState) errorState.style.display = 'none';
   }
 
-  // Capture email from maturity form and start assessment
   document.addEventListener('DOMContentLoaded', function() {
     const maturityForm = getMaturityForm();
     const maturitySection = document.getElementById('maturity');
@@ -41,14 +39,11 @@
       maturityForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        // Capture the email from the form
         const emailInput = this.querySelector('input[type="email"], input[name="email"], input[name="Email"], input[name="email_id"]');
         if (emailInput) {
           userEmail = emailInput.value.trim();
-          console.log('Email captured:', userEmail);
         }
 
-        // Hide maturity form and show assessment
         if (maturitySection) maturitySection.style.display = 'none';
         if (assessmentSection) {
           assessmentSection.style.display = 'block';
@@ -63,34 +58,23 @@
     }
   });
 
-  // Function to submit assessment data to hidden Webflow form
   function submitAssessmentData() {
-    console.log('Attempting to submit assessment data...');
-    
     if (!userEmail) {
-      console.log('No email captured, skipping data submission');
       return;
     }
 
     try {
-      // Get current URL with results
       const assessmentUrl = window.location.href;
-      
-      // Get the answers array from DPMA
       const scores = Array.isArray(window.DPMA_answers) ? window.DPMA_answers : [];
-      console.log('Scores:', scores);
-      
+
       if (!scores || scores.length === 0) {
-        console.log('No scores available, skipping submission');
         return;
       }
-      
-      // Calculate maturity level
+
       const validScores = scores.filter(s => s !== null && s !== undefined);
       const minScore = Math.min(...validScores.map(s => s || 1));
       const maturityLevel = `Level ${minScore}`;
-      
-      // Get maturity percentage
+
       const maturityData = {
         1: { name: "Ad Hoc", pct: 10 },
         2: { name: "Emerging", pct: 20 },
@@ -99,42 +83,35 @@
         5: { name: "Optimised", pct: 80 }
       };
       const maturityPct = maturityData[minScore]?.pct || 0;
-      
-      // Dimension names
+
       const dimensions = [
         "Definition & Scope", "Ownership & Accountability", "Discoverability & Access",
         "Documentation & Semantics", "Data Quality & Trust", "SLAs, Reliability & Freshness",
         "Governance & Security", "Reusability & Interoperability", "Consumption, Adoption & Value"
       ];
-      
-      // Create dimension scores string
+
       const dimensionScores = dimensions.map((dim, idx) => {
         const score = scores[idx] || 1;
         return `${dim}: L${score}`;
       }).join(' | ');
-      
-      // Get weakest dimensions (score <= 3)
+
       const weakest = dimensions
         .map((dim, idx) => ({ dim, score: scores[idx] || 1 }))
         .filter(d => d.score <= 3)
         .map(d => `${d.dim} (L${d.score})`)
         .join(' | ');
-        
-      // Get strongest dimensions (score >= 4)
+
       const strongest = dimensions
         .map((dim, idx) => ({ dim, score: scores[idx] || 1 }))
         .filter(d => d.score >= 4)
         .map(d => `${d.dim} (L${d.score})`)
         .join(' | ');
-      
-      // Create answers string for storage
+
       const answersString = scores.join(',');
-      
-      // Populate hidden form fields
+
       const setFieldValue = function(selectors, value) {
         const field = document.querySelector(selectors);
         if (!field) {
-          console.warn('Hidden form field not found for selectors:', selectors);
           return;
         }
         field.value = value;
@@ -147,16 +124,7 @@
       setFieldValue('#hidden-weakest-dimensions, input[name="weakest-dimensions"]', weakest || 'None - all dimensions are strong');
       setFieldValue('#hidden-strongest-dimensions, input[name="strongest-dimensions"]', strongest || 'No strengths yet - keep building');
       setFieldValue('#hidden-assessment-answers, #assessment-answers, input[name="assessment-answers"]', answersString);
-      
-      console.log('Form data populated:', {
-        email: userEmail,
-        maturityLevel: maturityLevel,
-        maturityPct: maturityPct + '%',
-        weakest: weakest || 'None',
-        strongest: strongest || 'None'
-      });
-      
-      // Submit the hidden form using Webflow's form handler
+
       const hiddenForm = document.getElementById('assessment-data-form')
         || document.getElementById('wf-form-Assessment-Data')
         || document.querySelector('form[data-name="Assessment Data"]');
@@ -170,13 +138,8 @@
         } else {
           hiddenForm.submit();
         }
-        console.log('Assessment data submission triggered');
-      } else {
-        console.warn('Assessment data form not found');
       }
-      
     } catch (error) {
-      console.error('Error in submitAssessmentData:', error);
     }
   }
 
@@ -272,7 +235,6 @@ var DPMA = function() {
   "Consumption, Adoption & Value": [ null, "Start gathering anecdotal evidence of data usage through informal channels. When teams mention using your data assets in meetings or conversations, document these use cases in a spreadsheet or wiki. Create feedback channels like Slack channels, email lists, or Teams where data consumers can ask questions and share experiences. These discussions reveal usage patterns. Periodically check in with known users to understand how they're using the data and what challenges they face. Maintain a simple registry of known consumers and their use cases. This informal knowledge provides valuable insights even without sophisticated tracking.", "Implement usage tracking using your data platform's built-in capabilities, most platforms provide query logs, access logs, and usage analytics. Build dashboards showing key adoption metrics: number of active users (daily/weekly/monthly), query frequency, data volume consumed, most popular datasets, and usage trends over time. Implement systematic feedback collection through surveys (quarterly user satisfaction surveys), feedback forms embedded in your data catalog, or regular user interviews. Track support requests and data quality incidents to identify pain points. Create monthly or quarterly adoption reports shared with data product teams and leadership to inform data-informed investment decisions.", "Connect data product metrics to tangible business outcomes, work with business leaders to understand how each data product contributes to revenue, cost reduction, customer satisfaction, or operational efficiency. Implement FinOps practices that measure the cost to produce, store, and maintain each data product (compute, storage, engineering time) and compare against the business value delivered. Create value dashboards showing ROI for each data product and use them to inform investment decisions. Establish lifecycle management processes that regularly review data products for potential retirement when the value no longer justifies the costs. Implement portfolio management where data products are prioritised, invested in, or sunset based on their business impact and cost. Require business cases for new data products that clearly articulate expected value, target users, and success metrics.", null ]
  }, o = new Array(9).fill(null), r = 0, c = new Set(e), l = "#assessment";
  
- // Store answers globally so we can access them
  window.DPMA_answers = o;
  
  function d(e, t, a) {
@@ -459,7 +421,6 @@ var DPMA = function() {
    }(r.pct);
   }, 120);
   
-  // Submit assessment data after results are displayed
   setTimeout(function() {
     if (typeof submitAssessmentData === 'function') {
       submitAssessmentData();
@@ -514,7 +475,6 @@ var DPMA = function() {
        e.querySelectorAll(".dpma-opt").forEach(function(e) {
         e.classList.remove("selected");
        }), this.classList.add("selected"), o[t] = parseInt(this.getAttribute("data-val"));
-       // Update global reference
        window.DPMA_answers = o;
        e.querySelector(".dpma-btn-next").disabled = !1, h(), y();
       });
