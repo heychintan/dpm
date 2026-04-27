@@ -636,7 +636,13 @@
         r.link(a, c, l, d, {
           url: t.href
         });
-        }), r.save("data-product-maturity-assessment.pdf"), k("PDF download started");
+        });
+        var l = r.output("blob"), d = URL.createObjectURL(l), u = document.createElement("a");
+        u.href = d, u.download = "data-product-maturity-assessment.pdf", u.rel = "noopener", 
+        u.style.display = "none", document.body.appendChild(u), u.click(), document.body.removeChild(u), 
+        setTimeout(function() {
+        URL.revokeObjectURL(d);
+        }, 1e3), k("PDF download started");
       });
       }).catch(function(e) {
       console.error("PDF export failed", e), k("PDF download failed. Please try again.");
