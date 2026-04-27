@@ -28,12 +28,42 @@
       if (errorState) errorState.style.display = 'none';
     }
 
+    function loadDPMAPDFLib(url) {
+      return new Promise(function(resolve, reject) {
+        const existing = document.querySelector('script[data-dpma-lib="' + url + '"]');
+        if (existing && existing.getAttribute('data-loaded') === 'true') {
+          resolve();
+          return;
+        }
+        const script = existing || document.createElement('script');
+        if (!existing) {
+          script.src = url;
+          script.async = true;
+          script.setAttribute('data-dpma-lib', url);
+          document.head.appendChild(script);
+        }
+        script.addEventListener('load', function() {
+          script.setAttribute('data-loaded', 'true');
+          resolve();
+        }, { once: true });
+        script.addEventListener('error', function() {
+          reject(new Error('Failed to load ' + url));
+        }, { once: true });
+      });
+    }
+
+    const dpmaPdfLibsPromise = Promise.all([
+      loadDPMAPDFLib('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'),
+      loadDPMAPDFLib('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+    ]);
+
     document.addEventListener('DOMContentLoaded', function() {
       const maturityForm = getMaturityForm();
       const maturitySection = document.getElementById('maturity');
       const assessmentSection = document.getElementById('assessment-section');
 
       setInitialAssessmentState();
+      dpmaPdfLibsPromise.catch(function() {});
 
       if (maturityForm) {
         maturityForm.addEventListener('submit', function(e) {
@@ -598,29 +628,11 @@
       D += '<div class="branding">', D += '<img src="https://cdn.prod.website-files.com/6538b3836b3dce952f05ff81/69c176b77aa84ff24e1ed1ec_MD101%20LOGO%20White%201.png" alt="Modern Data 101">', 
       D += '<div class="branding-text">An initiative by Modern Data 101<br>', D += '<a href="https://moderndata101.com/data-product-maturity" target="_blank">moderndata101.com/data-product-maturity</a></div>', 
       D += "</div>", D += "</body></html>";
-      var E = function(e) {
-      return new Promise(function(t, i) {
-        var n = document.querySelector('script[data-dpma-lib="' + e + '"]');
-        if (n && "true" === n.getAttribute("data-loaded")) return t();
-        if (!n) {
-        n = document.createElement("script"), n.src = e, n.async = !0, n.setAttribute("data-dpma-lib", e), 
-        document.head.appendChild(n);
-        }
-        n.addEventListener("load", function() {
-        n.setAttribute("data-loaded", "true"), t();
-        }, {
-        once: !0
-        }), n.addEventListener("error", function() {
-        i(new Error("Failed to load " + e));
-        }, {
-        once: !0
-        });
-      });
-      }, T = document.getElementById("dpma-pdf-render-root");
+      var T = document.getElementById("dpma-pdf-render-root");
       T && T.parentNode && T.parentNode.removeChild(T), T = document.createElement("div"), T.id = "dpma-pdf-render-root", 
       T.style.position = "fixed", T.style.left = "-10000px", T.style.top = "0", T.style.width = "720px", 
       T.style.opacity = "0", T.style.pointerEvents = "none", T.style.zIndex = "-1", T.innerHTML = D, 
-      document.body.appendChild(T), Promise.all([ E("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"), E("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js") ]).then(function() {
+      document.body.appendChild(T), dpmaPdfLibsPromise.then(function() {
       var e = T.querySelector(".wrap");
       if (!e || !window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error("PDF libraries unavailable");
       return html2canvas(e, {
