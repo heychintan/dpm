@@ -629,9 +629,9 @@
   C += '<div style="background:#0A0A0A;font-family:Century Gothic,Verdana,sans-serif;color:#ffffff;'
      + 'padding:48px 32px 60px;width:720px;box-sizing:border-box;line-height:1.5;">';
 
-  C += '<h1 style="font-family:Georgia,serif;font-size:36px;line-height:1.15;margin:0 0 6px 0;color:#ffffff;">'
-     + 'Your Data Product Maturity <span style="color:#E8884A">Assessment</span></h1>';
-  C += '<div style="font-size:12px;color:#B0A89E;margin-bottom:32px">Generated ' + dateStr + '</div>';
+  C += '<div style="font-family:Georgia,serif;font-size:36px;line-height:1.15;margin:0 0 6px 0;color:#ffffff;font-weight:normal;">'
+   + 'Your Data Product Maturity <span style="color:#E8884A">Assessment</span></div>';
+   C += '<div style="font-size:12px;color:#B0A89E;margin-bottom:32px">Generated ' + dateStr + '</div>';
   C += '<div style="height:1px;background:#E8884A;margin-bottom:32px"></div>';
 
   // Level row
