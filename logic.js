@@ -597,23 +597,52 @@
       D += '<a class="share-link" href="' + h + '" target="_blank">' + h + "</a>", D += "</div>", 
       D += '<div class="branding">', D += '<img src="https://cdn.prod.website-files.com/6538b3836b3dce952f05ff81/69c176b77aa84ff24e1ed1ec_MD101%20LOGO%20White%201.png" alt="Modern Data 101">', 
       D += '<div class="branding-text">An initiative by Modern Data 101<br>', D += '<a href="https://moderndata101.com/data-product-maturity" target="_blank">moderndata101.com/data-product-maturity</a></div>', 
-      D += "</div>", D += "</div>", D += '<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\\/script>', 
-      D += '<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\\/script>', 
-      D += "<script>", D += 'window.addEventListener("load",function(){', D += "  setTimeout(function(){", 
-      D += '    var el=document.querySelector(".wrap");', D += '    var wrap=document.querySelector(".wrap");', 
-      D += '    html2canvas(wrap,{backgroundColor:"#0A0A0A",scale:2,useCORS:true}).then(function(canvas){', 
-      D += '      var imgData=canvas.toDataURL("image/png");', D += "      var pw=210;", 
-      D += "      var scale=pw/wrap.offsetWidth;", D += "      var imgH=(canvas.height*pw)/canvas.width;", 
-      D += '      var pdf=new jspdf.jsPDF("p","mm",[pw,imgH]);', D += '      pdf.addImage(imgData,"PNG",0,0,pw,imgH);', 
-      D += '      var links=wrap.querySelectorAll("a[href]");', D += "      links.forEach(function(a){", 
-      D += "        var r=a.getBoundingClientRect();", D += "        var wr=wrap.getBoundingClientRect();", 
-      D += "        var x=(r.left-wr.left)*scale;", D += "        var y=(r.top-wr.top)*scale;", 
-      D += "        var w=r.width*scale;", D += "        var h=r.height*scale;", D += "        pdf.link(x,y,w,h,{url:a.href});", 
-      D += "      });", D += '      pdf.save("data-product-maturity-assessment.pdf");', 
-      D += "      setTimeout(function(){window.close()},600);", D += "    });", D += "  },400);", 
-      D += "});", D += "<\\/script>", D += "</body></html>";
-      var E = window.open("", "_blank");
-      E ? (E.document.write(D), E.document.close(), k("PDF will download shortly...")) : k("Pop-up blocked — please allow pop-ups and try again");
+      D += "</div>", D += "</body></html>";
+      var E = function(e) {
+      return new Promise(function(t, i) {
+        var n = document.querySelector('script[data-dpma-lib="' + e + '"]');
+        if (n && "true" === n.getAttribute("data-loaded")) return t();
+        if (!n) {
+        n = document.createElement("script"), n.src = e, n.async = !0, n.setAttribute("data-dpma-lib", e), 
+        document.head.appendChild(n);
+        }
+        n.addEventListener("load", function() {
+        n.setAttribute("data-loaded", "true"), t();
+        }, {
+        once: !0
+        }), n.addEventListener("error", function() {
+        i(new Error("Failed to load " + e));
+        }, {
+        once: !0
+        });
+      });
+      }, T = document.getElementById("dpma-pdf-render-root");
+      T && T.parentNode && T.parentNode.removeChild(T), T = document.createElement("div"), T.id = "dpma-pdf-render-root", 
+      T.style.position = "fixed", T.style.left = "-10000px", T.style.top = "0", T.style.width = "720px", 
+      T.style.opacity = "0", T.style.pointerEvents = "none", T.style.zIndex = "-1", T.innerHTML = D, 
+      document.body.appendChild(T), Promise.all([ E("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"), E("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js") ]).then(function() {
+      var e = T.querySelector(".wrap");
+      if (!e || !window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) throw new Error("PDF libraries unavailable");
+      return html2canvas(e, {
+        backgroundColor: "#0A0A0A",
+        scale: 2,
+        useCORS: !0
+      }).then(function(t) {
+        var i = t.toDataURL("image/png"), n = 210, o = n / e.offsetWidth, a = t.height * n / t.width, r = new window.jspdf.jsPDF("p", "mm", [ n, a ]);
+        r.addImage(i, "PNG", 0, 0, n, a);
+        var c = e.querySelectorAll("a[href]");
+        c.forEach(function(t) {
+        var i = t.getBoundingClientRect(), n = e.getBoundingClientRect(), a = (i.left - n.left) * o, c = (i.top - n.top) * o, l = i.width * o, d = i.height * o;
+        r.link(a, c, l, d, {
+          url: t.href
+        });
+        }), r.save("data-product-maturity-assessment.pdf"), k("PDF download started");
+      });
+      }).catch(function(e) {
+      console.error("PDF export failed", e), k("PDF download failed. Please try again.");
+      }).finally(function() {
+      T && T.parentNode && T.parentNode.removeChild(T);
+      });
     } else k("No results to export");
     },
     encodeAnswers: u,
