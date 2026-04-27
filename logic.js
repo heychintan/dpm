@@ -555,147 +555,196 @@
     }) : x(e);
     },
     downloadPDF: function() {
-    if (document.getElementById("dpma-results-inner")) {
-      k("Generating report...");
-      var t = document.createElement("canvas");
-      t.width = 920, t.height = 840;
-      var i = t.getContext("2d");
-      i.fillStyle = "#0A0A0A", i.fillRect(0, 0, 920, 840), i.scale(2, 2), f(i, 460, 420, .36 * Math.min(460, 420), {
-      cyOffset: 10,
-      labelPad: 34,
-      labelSize: 14,
-      dotSize: 6,
-      lineW: 3,
-      showLevelLabels: !0,
-      forceActiveLabels: !0,
-      activeCheck: function() {
-        return !0;
-      },
-      valFn: function(e) {
-        return o[e] || 0;
-      }
-      });
-      var r = t.toDataURL("image/png"), c = Math.min.apply(null, o.map(function(e) {
-      return e || 1;
-      })), l = n[c], d = e.map(function(e, t) {
-      return {
-        ax: e,
-        score: o[t] || 1
-      };
-      }).sort(function(e, t) {
-      return e.score - t.score;
-      }), u = d.filter(function(e) {
-      return e.score <= 3;
-      }), m = d.filter(function(e) {
-      return e.score >= 4;
-      }).reverse(), p = d.filter(function(e) {
-      return e.score <= 3;
-      }), h = w(), g = (new Date).toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "long",
-      year: "numeric"
-      }), y = (window.location.origin, window.location.pathname, l.pct), v = 2 * Math.PI * 42, b = '<svg width="110" height="110" viewBox="0 0 110 110" style="display:block;margin:0 auto"><circle cx="55" cy="55" r="42" fill="none" stroke="#2a2a2a" stroke-width="12"/><circle cx="55" cy="55" r="42" fill="none" stroke="#E8884A" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + y / 100 * v + " " + v + '" transform="rotate(-90 55 55)"/><text x="55" y="55" text-anchor="middle" dominant-baseline="central" fill="#F5F0EB" font-family="Georgia,serif" font-size="20">' + y + "%</text></svg>", x = "";
-      e.forEach(function(e, t) {
-      var a = o[t] || 1, i = Math.round(a / 5 * 100);
-      x += '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #222"><span style="flex:0 0 200px;font-size:13px;color:#B0A89E">' + e + '</span><span style="flex:1;height:4px;background:#222;border-radius:2px;position:relative;overflow:hidden"><span style="position:absolute;left:0;top:0;height:100%;width:' + i + '%;background:#E8884A;border-radius:2px"></span></span><span style="flex:0 0 28px;font-size:12px;font-weight:700;color:#E8884A;text-align:right">L' + a + "</span></div>";
-      });
-      var A = m.length > 0 ? m.map(function(e) {
-      return '<li style="font-size:13px;color:#B0A89E;line-height:1.6">' + e.ax + " (L" + e.score + ")</li>";
-      }).join("") : '<li style="font-size:13px;color:#B0A89E;line-height:1.6">No strengths yet — keep building!</li>', S = "";
-      p.length > 0 && p.forEach(function(e) {
-      var t = s[e.ax] && s[e.ax][e.score];
-      if (t) {
-        var i = a[e.ax] || [], n = i[e.score - 1] || "", o = i[e.score] || "";
-        S += '<div style="padding:14px 0;border-bottom:1px solid #222"><div style="font-size:12px;font-weight:700;color:#E8884A;margin-bottom:4px;display:flex;align-items:center;gap:8px">' + e.ax + '<span style="background:rgba(232,136,74,.08);border:1px solid rgba(232,136,74,.18);color:#E8884A;font-size:9px;padding:2px 8px;letter-spacing:1px">L' + e.score + " (" + n + ") &rarr; L" + (e.score + 1) + " (" + o + ')</span></div><div style="font-size:13px;color:#B0A89E;line-height:1.7">' + t + "</div></div>";
-      }
-      });
-      var D = '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Data Product Maturity Assessment — Results</title><style>*{margin:0;padding:0;box-sizing:border-box}html,body{background:#0A0A0A;min-height:100%;color:#F5F0EB;font-family:"Century Gothic",Verdana,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}.wrap{max-width:720px;margin:0 auto;padding:48px 32px 60px;color:#F5F0EB!important}.wrap h1{font-family:Georgia,serif;font-size:36px;line-height:1.15;margin-bottom:6px;color:#F5F0EB!important}.wrap h1 span{color:#E8884A!important}.date{font-size:12px;color:#B0A89E!important;margin-bottom:32px}.divider{height:1px;background:#E8884A;margin-bottom:32px}.level-row{display:flex;align-items:center;gap:20px;margin-bottom:32px}.level-box{background:#161616;border:1px solid #222;padding:20px 28px;flex:1}.level-num{font-family:Georgia,serif;font-size:16px;letter-spacing:2px;margin-bottom:8px;color:#F5F0EB!important}.level-badge{background:#E8884A;color:#000!important;font-family:Georgia,serif;font-size:20px;font-weight:700;padding:8px 24px;display:inline-block}.donut-wrap{flex:0 0 110px}.radar-wrap{text-align:center;margin-bottom:32px}.radar-wrap img{width:100%;max-width:460px;height:auto}.section{margin-bottom:28px}.section-title{font-family:Georgia,serif;font-size:16px;font-weight:700;margin-bottom:12px;color:#F5F0EB!important}.means-box{background:#161616;border:1px solid #222;border-left:3px solid #E8884A;padding:18px 22px}.means-box p{font-size:13px;color:#B0A89E!important;line-height:1.7}.bd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.bd-card{background:#161616;border:1px solid #222;padding:18px}.bd-card-title{font-size:13px;font-weight:800;margin-bottom:10px}.bd-lowest{list-style:disc;padding-left:18px;display:flex;flex-direction:column;gap:5px}.bd-lowest li{font-size:12px;color:#B0A89E!important;line-height:1.45;font-weight:400}.strengths{list-style:disc;padding-left:18px;display:flex;flex-direction:column;gap:5px}.recs-box{background:#161616;border:1px solid #222;border-left:3px solid #E8884A;padding:20px}.recs-title{font-size:14px;font-weight:800;margin-bottom:14px;letter-spacing:.5px;color:#F5F0EB!important}.scores-box{background:#161616;border:1px solid #222;padding:20px}.share-section{background:#161616;border:1px solid #222;padding:20px 22px;margin-top:32px}.share-label{font-size:13px;color:#B0A89E!important;margin-bottom:6px}.share-link{font-size:12px;color:#E8884A!important;word-break:break-all;text-decoration:none}.share-link:hover{text-decoration:underline}.branding{display:flex;align-items:center;gap:14px;margin-top:40px;padding-top:24px;border-top:1px solid #222}.branding img{width:125px;height:43px;object-fit:contain}.branding-text{font-size:11px;color:#6B635C!important;line-height:1.5}.branding-text a{color:#E8884A!important;text-decoration:none}.branding-text a:hover{text-decoration:underline}@media print{body{background:#0A0A0A;-webkit-print-color-adjust:exact;print-color-adjust:exact}.wrap{padding:24px}}@media(max-width:600px){.bd-grid{grid-template-columns:1fr}.level-row{flex-wrap:wrap}}</style></head><body><div class="wrap">';
-      D += '<h1 class="text-color-white">Your Data Product Maturity <span>Assessment</span></h1>', D += '<div class="date">Generated ' + g + "</div>", 
-      D += '<div class="divider"></div>', D += '<div class="level-row"><div class="level-box">', 
-      D += '<div class="level-num">' + l.num + "</div>", D += '<div class="level-badge">' + l.name + "</div>", 
-      D += '</div><div class="donut-wrap">' + b + "</div></div>", D += '<div class="section"><div class="section-title">What this means for your organisation</div>', 
-      D += '<div class="means-box"><p>' + l.desc + "</p></div></div>", D += '<div class="radar-wrap"><img src="' + r + '" alt="Maturity Fingerprint Radar"></div>', 
-      D += '<div class="section"><div class="section-title">Dimension Scores</div>', D += '<div class="scores-box">' + x + "</div></div>", 
-      D += '<div class="section"><div class="section-title">Dimension breakdown at a glance</div>', 
-      D += '<div class="bd-grid">', D += '<div class="bd-card"><div class="bd-card-title" style="color:#E8884A">Weakest Dimensions &#9888;&#65039;</div>', 
-      D += '<ul class="bd-lowest">' + (u.length > 0 ? u.map(function(e) {
-      return "<li>" + e.ax + " (L" + e.score + ")</li>";
-      }).join("") : "<li>None — all dimensions are strong!</li>") + "</ul></div>", D += '<div class="bd-card"><div class="bd-card-title" style="color:#8BC34A">Your Strengths &#128170;</div>', 
-      D += '<ul class="strengths">' + A + "</ul></div>", D += "</div></div>", S && (D += '<div class="section"><div class="section-title">Recommendations to Advance Your Weakest Dimensions</div>', 
-      D += '<div class="recs-box">' + S + "</div></div>"), D += '<div class="share-section">', 
-      D += '<div class="share-label">View your results or retake the assessment at</div>', 
-      D += '<a class="share-link" href="' + h + '" target="_blank">' + h + "</a>", D += "</div>", 
-      D += '<div class="branding">', D += '<img src="https://cdn.prod.website-files.com/6538b3836b3dce952f05ff81/69c176b77aa84ff24e1ed1ec_MD101%20LOGO%20White%201.png" alt="Modern Data 101">', 
-      D += '<div class="branding-text">An initiative by Modern Data 101<br>', D += '<a href="https://moderndata101.com/data-product-maturity" target="_blank">moderndata101.com/data-product-maturity</a></div>', 
-      D += "</body></html>";
+  if (!document.getElementById("dpma-results-inner")) { k("No results to export"); return; }
+  k("Generating report...");
 
-      // Bring the page's own stylesheets into the iframe so Webflow classes (text-color-white etc.)
-// resolve, and add a safety rule for heading elements html2canvas can misread in srcdoc iframes
-var _pageLinks = [].slice.call(document.querySelectorAll('link[rel="stylesheet"]'))
-  .map(function(l) { return l.href ? '<link rel="stylesheet" href="' + l.href + '">' : ''; })
-  .join('');
-var _headingFix = '<style>h1,.section-title,.level-num,.recs-title{color:#ffffff!important}</style>';
-D = D.replace('</head>', _pageLinks + _headingFix + '</head>');
+  // Radar canvas
+  var t = document.createElement("canvas");
+  t.width = 920; t.height = 840;
+  var rCtx = t.getContext("2d");
+  rCtx.fillStyle = "#0A0A0A"; rCtx.fillRect(0, 0, 920, 840); rCtx.scale(2, 2);
+  f(rCtx, 460, 420, .36 * Math.min(460, 420), {
+    cyOffset: 10, labelPad: 34, labelSize: 14, dotSize: 6, lineW: 3,
+    showLevelLabels: true, forceActiveLabels: true,
+    activeCheck: function() { return true; },
+    valFn: function(i) { return o[i] || 0; }
+  });
+  var radarImg = t.toDataURL("image/png");
 
-      // Render in a hidden off-screen iframe (srcdoc = same-origin, no popup needed)
-      var pdfIframe = document.createElement("iframe");
-      pdfIframe.style.cssText = "position:fixed;left:-9999px;top:0;width:760px;height:2px;border:none;visibility:hidden;";
-      document.body.appendChild(pdfIframe);
-      pdfIframe.srcdoc = D;
+  // Data
+  var minScore = Math.min.apply(null, o.map(function(v) { return v || 1; }));
+  var lvl = n[minScore];
+  var sorted = e.map(function(ax, i) { return { ax: ax, score: o[i] || 1 }; })
+    .sort(function(a, b) { return a.score - b.score; });
+  var weakest  = sorted.filter(function(d) { return d.score <= 3; });
+  var strongest = sorted.filter(function(d) { return d.score >= 4; }).reverse();
+  var forRecs  = sorted.filter(function(d) { return d.score <= 3; });
+  var shareUrl = w();
+  var dateStr  = new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
 
-      pdfIframe.addEventListener("load", function() {
-        setTimeout(function() {
-          dpmaPdfLibsPromise.then(function() {
-            var wrap = pdfIframe.contentDocument && pdfIframe.contentDocument.querySelector(".wrap");
-            if (!wrap || !window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) {
-              document.body.removeChild(pdfIframe);
-              k("Could not generate PDF — try again");
-              return;
-            }
-            // Expand iframe to full content height so nothing is clipped
-            pdfIframe.style.height = (pdfIframe.contentDocument.body.scrollHeight + 50) + "px";
+  // Donut SVG
+  var circ = 2 * Math.PI * 42, pct = lvl.pct;
+  var donutSvg = '<svg width="110" height="110" viewBox="0 0 110 110" style="display:block;margin:0 auto">'
+    + '<circle cx="55" cy="55" r="42" fill="none" stroke="#2a2a2a" stroke-width="12"/>'
+    + '<circle cx="55" cy="55" r="42" fill="none" stroke="#E8884A" stroke-width="12" stroke-linecap="round"'
+    + ' stroke-dasharray="' + (pct/100*circ) + ' ' + circ + '" transform="rotate(-90 55 55)"/>'
+    + '<text x="55" y="55" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-family="Georgia,serif" font-size="20">' + pct + '%</text>'
+    + '</svg>';
 
-            return window.html2canvas(wrap, {
-              backgroundColor: "#0A0A0A",
-              scale: 2,
-              useCORS: true,
-              allowTaint: false,
-              logging: false,
-              windowWidth: 760
-            }).then(function(canvas) {
-              document.body.removeChild(pdfIframe);
-              var imgData = canvas.toDataURL("image/png");
-              var pw = 210;
-              var scl = pw / wrap.offsetWidth;
-              var imgH = (canvas.height * pw) / canvas.width;
-              var pdf = new window.jspdf.jsPDF("p", "mm", [pw, imgH]);
-              pdf.addImage(imgData, "PNG", 0, 0, pw, imgH);
-              // Preserve clickable links in the PDF
-              wrap.querySelectorAll("a[href]").forEach(function(a) {
-                var ar = a.getBoundingClientRect();
-                var wr = wrap.getBoundingClientRect();
-                pdf.link((ar.left - wr.left) * scl, (ar.top - wr.top) * scl, ar.width * scl, ar.height * scl, { url: a.href });
-              });
-              var blob = pdf.output("blob");
-              var url = URL.createObjectURL(blob);
-              var link = document.createElement("a");
-              link.href = url;
-              link.download = "data-product-maturity-assessment.pdf";
-              link.style.display = "none";
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              setTimeout(function() { URL.revokeObjectURL(url); }, 1500);
-              k("PDF downloaded!");
-            });
-          }).catch(function() {
-            if (document.body.contains(pdfIframe)) document.body.removeChild(pdfIframe);
-            k("Could not generate PDF — try again");
-          });
-        }, 400);
-      }, { once: true });
-    } else k("No results to export");
-    },
+  // Score bars
+  var scoresHtml = '';
+  e.forEach(function(ax, i) {
+    var sc = o[i] || 1;
+    scoresHtml += '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #222">'
+      + '<span style="flex:0 0 200px;font-size:13px;color:#B0A89E">' + ax + '</span>'
+      + '<span style="flex:1;height:4px;background:#222;border-radius:2px;position:relative;overflow:hidden">'
+      + '<span style="position:absolute;left:0;top:0;height:100%;width:' + Math.round(sc/5*100) + '%;background:#E8884A;border-radius:2px"></span></span>'
+      + '<span style="flex:0 0 28px;font-size:12px;font-weight:700;color:#E8884A;text-align:right">L' + sc + '</span></div>';
+  });
+
+  // Weakest / Strongest lists
+  var weakestHtml = weakest.length
+    ? weakest.map(function(d) { return '<li style="font-size:13px;color:#B0A89E;line-height:1.6">' + d.ax + ' (L' + d.score + ')</li>'; }).join('')
+    : '<li style="font-size:13px;color:#B0A89E;line-height:1.6">None — all dimensions are strong!</li>';
+  var strongestHtml = strongest.length
+    ? strongest.map(function(d) { return '<li style="font-size:13px;color:#B0A89E;line-height:1.6">' + d.ax + ' (L' + d.score + ')</li>'; }).join('')
+    : '<li style="font-size:13px;color:#B0A89E;line-height:1.6">No strengths yet — keep building!</li>';
+
+  // Recommendations
+  var recsHtml = '';
+  forRecs.forEach(function(d) {
+    var rec = s[d.ax] && s[d.ax][d.score];
+    if (rec) {
+      var labels = a[d.ax] || [];
+      recsHtml += '<div style="padding:14px 0;border-bottom:1px solid #222">'
+        + '<div style="font-size:12px;font-weight:700;color:#E8884A;margin-bottom:4px">' + d.ax
+        + '<span style="background:rgba(232,136,74,.08);border:1px solid rgba(232,136,74,.18);color:#E8884A;font-size:9px;padding:2px 8px;letter-spacing:1px;margin-left:8px">'
+        + 'L' + d.score + ' (' + (labels[d.score-1]||'') + ') &rarr; L' + (d.score+1) + ' (' + (labels[d.score]||'') + ')</span></div>'
+        + '<div style="font-size:13px;color:#B0A89E;line-height:1.7">' + rec + '</div></div>';
+    }
+  });
+
+  // Build content — every colour is an inline style, no CSS classes relied upon
+  var C = '';
+  C += '<div style="background:#0A0A0A;font-family:Century Gothic,Verdana,sans-serif;color:#ffffff;'
+     + 'padding:48px 32px 60px;width:720px;box-sizing:border-box;line-height:1.5;">';
+
+  C += '<h1 style="font-family:Georgia,serif;font-size:36px;line-height:1.15;margin:0 0 6px 0;color:#ffffff;">'
+     + 'Your Data Product Maturity <span style="color:#E8884A">Assessment</span></h1>';
+  C += '<div style="font-size:12px;color:#B0A89E;margin-bottom:32px">Generated ' + dateStr + '</div>';
+  C += '<div style="height:1px;background:#E8884A;margin-bottom:32px"></div>';
+
+  // Level row
+  C += '<div style="display:flex;align-items:center;gap:20px;margin-bottom:32px">';
+  C +=   '<div style="background:#161616;border:1px solid #222;padding:20px 28px;flex:1">';
+  C +=     '<div style="font-family:Georgia,serif;font-size:16px;letter-spacing:2px;margin-bottom:8px;color:#ffffff">' + lvl.num + '</div>';
+  C +=     '<div style="background:#E8884A;color:#000000;font-family:Georgia,serif;font-size:20px;font-weight:700;padding:8px 24px;display:inline-block">' + lvl.name + '</div>';
+  C +=   '</div>';
+  C +=   '<div style="flex:0 0 110px">' + donutSvg + '</div>';
+  C += '</div>';
+
+  // What it means
+  C += '<div style="margin-bottom:28px">';
+  C +=   '<div style="font-family:Georgia,serif;font-size:16px;font-weight:700;margin-bottom:12px;color:#ffffff">What this means for your organisation</div>';
+  C +=   '<div style="background:#161616;border:1px solid #222;border-left:3px solid #E8884A;padding:18px 22px">';
+  C +=     '<p style="font-size:13px;color:#B0A89E;line-height:1.7;margin:0">' + lvl.desc + '</p>';
+  C +=   '</div>';
+  C += '</div>';
+
+  // Radar
+  C += '<div style="text-align:center;margin-bottom:32px">'
+     + '<img src="' + radarImg + '" alt="Maturity Fingerprint" style="width:100%;max-width:460px;height:auto;display:block;margin:0 auto">'
+     + '</div>';
+
+  // Dimension scores
+  C += '<div style="margin-bottom:28px">';
+  C +=   '<div style="font-family:Georgia,serif;font-size:16px;font-weight:700;margin-bottom:12px;color:#ffffff">Dimension Scores</div>';
+  C +=   '<div style="background:#161616;border:1px solid #222;padding:20px">' + scoresHtml + '</div>';
+  C += '</div>';
+
+  // Breakdown grid
+  C += '<div style="margin-bottom:28px">';
+  C +=   '<div style="font-family:Georgia,serif;font-size:16px;font-weight:700;margin-bottom:12px;color:#ffffff">Dimension breakdown at a glance</div>';
+  C +=   '<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">';
+  C +=     '<div style="background:#161616;border:1px solid #222;padding:18px">';
+  C +=       '<div style="font-size:13px;font-weight:800;margin-bottom:10px;color:#E8884A">Weakest Dimensions</div>';
+  C +=       '<ul style="list-style:disc;padding-left:18px;margin:0">' + weakestHtml + '</ul>';
+  C +=     '</div>';
+  C +=     '<div style="background:#161616;border:1px solid #222;padding:18px">';
+  C +=       '<div style="font-size:13px;font-weight:800;margin-bottom:10px;color:#8BC34A">Your Strengths</div>';
+  C +=       '<ul style="list-style:disc;padding-left:18px;margin:0">' + strongestHtml + '</ul>';
+  C +=     '</div>';
+  C +=   '</div>';
+  C += '</div>';
+
+  // Recommendations
+  if (recsHtml) {
+    C += '<div style="margin-bottom:28px">';
+    C +=   '<div style="font-family:Georgia,serif;font-size:16px;font-weight:700;margin-bottom:12px;color:#ffffff">Recommendations to Advance Your Weakest Dimensions</div>';
+    C +=   '<div style="background:#161616;border:1px solid #222;border-left:3px solid #E8884A;padding:20px">' + recsHtml + '</div>';
+    C += '</div>';
+  }
+
+  // Share link
+  C += '<div style="background:#161616;border:1px solid #222;padding:20px 22px;margin-top:32px">';
+  C +=   '<div style="font-size:13px;color:#B0A89E;margin-bottom:6px">View your results or retake the assessment at</div>';
+  C +=   '<a href="' + shareUrl + '" style="font-size:12px;color:#E8884A;word-break:break-all;text-decoration:none">' + shareUrl + '</a>';
+  C += '</div>';
+
+  // Branding
+  C += '<div style="display:flex;align-items:center;gap:14px;margin-top:40px;padding-top:24px;border-top:1px solid #222">';
+  C +=   '<img src="https://cdn.prod.website-files.com/6538b3836b3dce952f05ff81/69c176b77aa84ff24e1ed1ec_MD101%20LOGO%20White%201.png"'
+       + ' alt="Modern Data 101" style="width:125px;height:43px;object-fit:contain">';
+  C +=   '<div style="font-size:11px;color:#6B635C;line-height:1.5">An initiative by Modern Data 101<br>'
+       + '<a href="https://moderndata101.com/data-product-maturity" style="color:#E8884A;text-decoration:none">moderndata101.com/data-product-maturity</a></div>';
+  C += '</div>';
+
+  C += '</div>'; // close wrap
+
+  // Render in current page DOM — no iframe, html2canvas reads same-document styles reliably
+  var pdfBox = document.createElement("div");
+  pdfBox.style.cssText = "position:fixed;left:-9999px;top:0;width:720px;background:#0A0A0A;";
+  pdfBox.innerHTML = C;
+  document.body.appendChild(pdfBox);
+
+  dpmaPdfLibsPromise.then(function() {
+    return new Promise(function(res) { setTimeout(res, 200); });
+  }).then(function() {
+    return window.html2canvas(pdfBox.firstElementChild, {
+      backgroundColor: "#0A0A0A",
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      windowWidth: 720
+    });
+  }).then(function(canvas) {
+    var wrap = pdfBox.firstElementChild;
+    var imgData = canvas.toDataURL("image/png");
+    var pw = 210, scl = pw / wrap.offsetWidth;
+    var imgH = (canvas.height * pw) / canvas.width;
+    var pdf = new window.jspdf.jsPDF("p", "mm", [pw, imgH]);
+    pdf.addImage(imgData, "PNG", 0, 0, pw, imgH);
+    wrap.querySelectorAll("a[href]").forEach(function(a) {
+      var ar = a.getBoundingClientRect(), wr = wrap.getBoundingClientRect();
+      pdf.link((ar.left-wr.left)*scl, (ar.top-wr.top)*scl, ar.width*scl, ar.height*scl, { url: a.href });
+    });
+    document.body.removeChild(pdfBox);
+    var blob = pdf.output("blob");
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.href = url; link.download = "data-product-maturity-assessment.pdf";
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(function() { URL.revokeObjectURL(url); }, 1500);
+    k("PDF downloaded!");
+  }).catch(function() {
+    if (document.body.contains(pdfBox)) document.body.removeChild(pdfBox);
+    k("Could not generate PDF — try again");
+  });
+},
     encodeAnswers: u,
     decodeAnswers: m
   };
